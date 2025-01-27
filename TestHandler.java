@@ -187,6 +187,7 @@ public class TestHandler {
         list.addFirst(block);
         String expected = "true";
         String actual = "";
+        System.out.println(list.getLast().block.equals(block));
         try {
             actual += list.getFirst().block.equals(block) && list.getLast().block.equals(block) && list.getSize() == 1;
         } catch (Exception e) {
@@ -323,6 +324,7 @@ public class TestHandler {
         list.addLast(block2);
         String expected = "true";
         String actual = "";
+        System.out.println(list.getLast().block.equals(block2));
         try {
             actual += list.getFirst().block.equals(block) && list.getLast().block.equals(block2) && list.getSize() == 2 && compareLinkedLists(list, createLinkedList(new MemoryBlock[]{block, block2}));
         } catch (Exception e) {
@@ -2509,7 +2511,6 @@ public class TestHandler {
         try {
             int address = memorySpace.malloc(20);
             actual += (address == 0 && memorySpace.toString().equals(expectedText));
-            
         } catch (Exception e) {
             actual = TesterMessagesEnum.ERROR + e.getMessage();
         }

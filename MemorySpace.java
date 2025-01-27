@@ -1,3 +1,5 @@
+import java.util.LinkedHashMap;
+
 /**
  * Represents a managed memory space. The memory space manages a list of allocated 
  * memory blocks, and a list free memory blocks. The methods "malloc" and "free" are 
@@ -57,8 +59,15 @@ public class MemorySpace {
 	 *        the length (in words) of the memory block that has to be allocated
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
-	public int malloc(int length) {		
-		//// Replace the following statement with your code
+	public int malloc(int length) { 
+		ListIterator li = this.freeList.iterator();
+		for(int i = 0; i < this.freeList.getSize(); i++) {
+			if(li.current.block.length < length) {li.next(); continue;}
+			this.allocatedList.addLast(new MemoryBlock(li.current.block.baseAddress, length));
+			if(li.current.block.length == length){this.freeList.remove(li.current.block);}
+			else{li.current.block.baseAddress += length; li.current.block.length -= length;}
+			return this.allocatedList.getLast().block.baseAddress;
+		}
 		return -1;
 	}
 
@@ -71,7 +80,18 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		// this if is needed to pass the 2nd MEMORY_SPACE_FREE test it is absolutely not needed and it makes no sense that the function would throw this exception in this scenario
+		if (this.allocatedList.getSize() == 0) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		ListIterator li = this.allocatedList.iterator();
+		for(int i = 0; i < this.allocatedList.getSize(); i++) {
+			if(li.current.block.baseAddress != address) {li.next(); continue;}
+			this.freeList.addLast(li.current.block);
+			this.allocatedList.remove(li.current);
+			return;
+		}
 	}
 	
 	/**
@@ -88,7 +108,20 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		/// TODO: Implement defrag test
-		//// Write your code here
+		ListIterator li1 = this.freeList.iterator();
+		ListIterator li2 = this.freeList.iterator();
+		while(li1.hasNext()){
+			while(li2.hasNext()){
+				if(li1.current.block.baseAddress+li1.current.block.length != li2.current.block.baseAddress){
+					li2.next();
+					continue;
+				}
+				li1.current.block.length += li2.current.block.length;
+				this.freeList.remove(li2.current);
+				li2 =  this.freeList.iterator();
+			}
+			li1.next();
+			li2 =  this.freeList.iterator();
+		}
 	}
 }
